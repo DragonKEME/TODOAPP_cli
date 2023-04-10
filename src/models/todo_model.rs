@@ -36,6 +36,4 @@ impl Todo {
         self.finished = todo_dto.finished;
         self.content = todo_dto.content;
     }
-
-    //TODO : Clone trait
 }

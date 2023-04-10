@@ -16,5 +16,4 @@ impl Category {
             title: self.title.clone(),
         }
     }
-    //TODO : Clone trait
 }
