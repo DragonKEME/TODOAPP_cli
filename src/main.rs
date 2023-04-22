@@ -8,25 +8,22 @@ mod error;
 mod config;
 mod routes;
 mod security;
+mod view;
 
-use serde::{Serialize, Deserialize};
 use crate::controller::user::get_user_todo;
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Test {
-    nombre: usize,
-    texte: String,
-}
+use crate::view::main_panel;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>>{
 
-    let (user, mut todos) = login("newtest".to_string(), "proutprout".to_string()).await?;
+
+    //Api test
+    let (user, mut todos) = login("nem".to_string(), "proutprout".to_string()).await?;
     println!("Login and get todo");
     println!("Distant -> local Data: {:#?}",user);
     println!("{:#?}", todos);
 
-
+    /*
     let categories = get_categories().await?;
     //println!("{:#?}",categories);
 
@@ -39,6 +36,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>{
     println!("Finished a todo: ");
     println!("Local Data: {:#?}",todos);
     println!("Server Data{:#?}",get_user_todo().await?);
+    */
 
     Ok(())
 }

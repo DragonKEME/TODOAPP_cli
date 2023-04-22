@@ -1,3 +1,4 @@
+use std::ops::Add;
 use serde::{Serialize, Deserialize};
 use tokio::task_local;
 use crate::controller::user::UserDto;
@@ -35,5 +36,9 @@ impl Todo {
         self.createdAt = todo_dto.createdAt;
         self.finished = todo_dto.finished;
         self.content = todo_dto.content;
+    }
+
+    pub fn to_string(&self) -> String {
+        self.id.to_string() + self.content.as_str() + self.category.to_string().as_str()
     }
 }

@@ -1,3 +1,4 @@
+use std::ops::Add;
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -15,5 +16,8 @@ impl Category {
             id: self.id,
             title: self.title.clone(),
         }
+    }
+    pub fn to_string(&self) -> String{
+        self.title.clone()
     }
 }

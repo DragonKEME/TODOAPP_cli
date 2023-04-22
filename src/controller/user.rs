@@ -6,6 +6,7 @@ use crate::routes;
 use crate::routes::Route;
 use serde::{Serialize, Deserialize};
 use crate::models::todo_model::Todo;
+use crate::view::main_panel;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct UserDto {
@@ -26,5 +27,6 @@ pub async fn get_user_todo() -> Result<(User,Vec<Todo>) , Box<dyn std::error::Er
     };
     let user = User::new(user_todo.id,user_todo.username,user_todo.email);
 
+    main_panel::todo_list(&user_todo.todos);
     Ok((user,user_todo.todos))
 }

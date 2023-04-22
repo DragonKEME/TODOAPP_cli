@@ -1,5 +1,4 @@
 use std::{error, fmt};
-use std::fmt::write;
 use crate::models::error_response::ErrorResponse;
 
 #[derive(Debug)]
