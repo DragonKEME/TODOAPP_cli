@@ -38,7 +38,22 @@ impl Todo {
         self.content = todo_dto.content;
     }
 
-    pub fn to_string(&self) -> String {
-        self.id.to_string() + self.content.as_str() + self.category.to_string().as_str()
+    /**
+    * The option is only if give_finished = false
+    * Else function always return string
+    */
+    pub fn to_string(&self, give_finished: bool) -> Option<String> {
+        let finish_str = match self.finished {
+            true => "yes",
+            false => "no",
+        };
+        if give_finished || !self.finished{
+            Some(self.id.to_string()
+                + ", " + self.content.as_str()
+                + ", " + self.category.to_string().as_str()
+                + ", " + finish_str)
+        }else{
+            None
+        }
     }
 }

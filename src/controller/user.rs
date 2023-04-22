@@ -27,6 +27,6 @@ pub async fn get_user_todo() -> Result<(User,Vec<Todo>) , Box<dyn std::error::Er
     };
     let user = User::new(user_todo.id,user_todo.username,user_todo.email);
 
-    main_panel::todo_list(&user_todo.todos);
+    main_panel::todo_list(&user_todo.todos,true);
     Ok((user,user_todo.todos))
 }
