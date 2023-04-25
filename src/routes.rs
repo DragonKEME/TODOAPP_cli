@@ -15,10 +15,10 @@ impl<'a> Route<'a> {
         Route { method, path, require_token}
     }
 
-    pub fn get_reqwest(self) -> reqwest::RequestBuilder{
+    pub fn get_reqwest(self) -> reqwest::blocking::RequestBuilder{
         let mut url: String = config::TODOAPP_API_URL.to_string();
         url.push_str(self.path);
-        let rb = reqwest::Client::new().request(self.method,url)
+        let rb = reqwest::blocking::Client::new().request(self.method,url)
             .header("Content-Type", "application/json");
 
         if self.require_token {
@@ -27,7 +27,7 @@ impl<'a> Route<'a> {
         rb
     }
 
-    pub fn get_reqwest_param(self ,params: &HashMap<String,String>) -> Result<reqwest::RequestBuilder,Box<dyn std::error::Error>> {
+    pub fn get_reqwest_param(self ,params: &HashMap<String,String>) -> Result<reqwest::blocking::RequestBuilder,Box<dyn std::error::Error>> {
         let mut str = self.path.to_string();
         for (key,value) in params{
             let str_replace = "{".to_string() + key + "}";
@@ -42,7 +42,7 @@ impl<'a> Route<'a> {
         }
         let mut url: String = config::TODOAPP_API_URL.to_string();
         url.push_str(str.as_str());
-        let rb = reqwest::Client::new().request(self.method,url)
+        let rb = reqwest::blocking::Client::new().request(self.method,url)
             .header("Content-Type", "application/json");
 
         if self.require_token {

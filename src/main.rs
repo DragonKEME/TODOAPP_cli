@@ -1,6 +1,3 @@
-use crate::controller::Category::get_categories;
-use crate::controller::login::login;
-use crate::controller::todo::{finished_todo, make_new_todo};
 
 mod models;
 mod controller;
@@ -10,18 +7,17 @@ mod routes;
 mod security;
 mod view;
 
-use crate::controller::user::get_user_todo;
 use crate::view::main_panel;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>>{
+fn main() -> Result<(), Box<dyn std::error::Error>>{
 
 
     //Api test
-    let (user, mut todos) = login("nem".to_string(), "proutprout".to_string()).await?;
-    println!("Login and get todo");
-    println!("Distant -> local Data: {:#?}",user);
-    println!("{:#?}", todos);
+    //let (user, mut todos) = login("nem".to_string(), "proutprout".to_string()).await?;
+    main_panel::todo_list()?;
+    //println!("Login and get todo");
+    //println!("Distant -> local Data: {:#?}",user);
+    //println!("{:#?}", todos);
 
     /*
     let categories = get_categories().await?;

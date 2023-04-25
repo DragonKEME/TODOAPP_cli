@@ -1,10 +1,8 @@
 use std::ops::Add;
 use serde::{Serialize, Deserialize};
-use tokio::task_local;
-use crate::controller::user::UserDto;
 use crate::models::category_model::Category;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Todo {
     id: usize,
     content: String,
@@ -27,9 +25,20 @@ impl Todo {
             id, content, finished, createdAt: created_at, category
         }
     }
+    pub fn new_void() -> Todo{
+        Todo{
+            id:0, content:"".to_string(), finished: false, createdAt: "".to_string(), category: Category::new()
+        }
+    }
 
     pub fn get_id(&self) -> usize {
         self.id
+    }
+    pub fn get_content(&self) -> String{
+        self.content.clone()
+    }
+    pub fn is_terminated(&self) -> bool{
+        self.finished
     }
 
     pub fn update_from_dto(&mut self, todo_dto: TodoDto){
@@ -43,17 +52,30 @@ impl Todo {
     * Else function always return string
     */
     pub fn to_string(&self, give_finished: bool) -> Option<String> {
-        let finish_str = match self.finished {
-            true => "yes",
-            false => "no",
-        };
         if give_finished || !self.finished{
             Some(self.id.to_string()
-                + ", " + self.content.as_str()
-                + ", " + self.category.to_string().as_str()
-                + ", " + finish_str)
+                + "," + self.content.as_str()
+                + "," + self.category.to_string().as_str()
+                + "," + self.finised_str(give_finished))
         }else{
             None
+        }
+    }
+    pub fn to_format_string(&self,content_size: usize,  give_finished: bool) -> Option<String> {
+        if give_finished || !self.finished{
+            Some(format!("{:<5}|{:<content_size$}|{:>18}|{:>8}",self.id.to_string(),self.content,self.category.to_string(),self.finised_str(give_finished)))
+        }else{
+            None
+        }
+    }
+
+    fn finised_str(&self,give_finished: bool) -> &str{
+        if !give_finished{
+            ""
+        } else if self.finished{
+            "yes"
+        }else{
+            "no"
         }
     }
 }

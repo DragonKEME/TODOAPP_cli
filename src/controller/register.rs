@@ -20,7 +20,7 @@ struct RegisterResponse {
     message: String,
 }
 
-pub async fn register(username: String, email: String, password: String) -> Result<UserTodo, Box<dyn std::error::Error>> {
+pub fn register(username: String, email: String, password: String) -> Result<(), Box<dyn std::error::Error>> {
 
     if username.is_empty() {
         return Err(Error::PASSWORDLEN.into());
@@ -40,12 +40,12 @@ pub async fn register(username: String, email: String, password: String) -> Resu
     };
 
     let res = Route::get_reqwest(routes::REGISTER)
-        .body(serde_json::to_string(&register_form)?).send().await?;
+        .body(serde_json::to_string(&register_form)?).send()?;
 
     let register_response = match res.status() {
-        StatusCode::CREATED => res.json::<RegisterResponse>().await?,
-        _ => return Err(Error::ServerError(res.json::<error_response::ErrorResponse>().await?).into()),
+        StatusCode::CREATED => res.json::<RegisterResponse>()?,
+        _ => return Err(Error::ServerError(res.json::<error_response::ErrorResponse>()?).into()),
     };
 
-    login::login(username,password).await
+    login::login(username,password)
 }

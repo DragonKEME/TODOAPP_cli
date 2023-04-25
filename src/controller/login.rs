@@ -1,7 +1,5 @@
 use serde::{Serialize, Deserialize};
 use http::status::StatusCode;
-use crate::controller::user;
-use crate::models::user_model::UserTodo;
 use crate::models::error_response;
 use crate::error::Error;
 use crate::routes;
@@ -20,7 +18,7 @@ struct LoginResponse {
     accessToken: String,
 }
 
-pub async fn login(username: String, password: String) -> Result<UserTodo, Box<dyn std::error::Error>> {
+pub fn login(username: String, password: String) -> Result<(), Box<dyn std::error::Error>> {
     if username.is_empty() {
         return Err(Error::PASSWORDLEN.into());
     }
@@ -35,15 +33,15 @@ pub async fn login(username: String, password: String) -> Result<UserTodo, Box<d
     };
 
     let res = Route::get_reqwest(routes::LOGIN)
-        .body(serde_json::to_string(&login_form)?).send().await?;
+        .body(serde_json::to_string(&login_form)?).send()?;
 
     let login_response = match res.status() {
-        StatusCode::CREATED => res.json::<LoginResponse>().await?,
-        _ => return Err(Error::ServerError(res.json::<error_response::ErrorResponse>().await?).into()),
+        StatusCode::CREATED => res.json::<LoginResponse>()?,
+        _ => return Err(Error::ServerError(res.json::<error_response::ErrorResponse>()?).into()),
     };
 
     token::set_token(login_response.accessToken);
 
 
-    user::get_user_todo().await
+    Ok(())
 }

@@ -1,13 +1,17 @@
-use std::ops::Add;
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Category {
     id: usize,
     title: String,
 }
 
 impl Category {
+    pub fn new() -> Category{
+        Category{
+            id:0, title: "".to_string(),
+        }
+    }
     pub fn get_id(&self) -> usize {
         self.id
     }

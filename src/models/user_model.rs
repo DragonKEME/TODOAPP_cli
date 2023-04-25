@@ -1,6 +1,6 @@
 use crate::models::todo_model::Todo;
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct User {
     id: usize,
     username: String,
@@ -14,4 +14,13 @@ impl User {
         User { id, username, email }
     }
 
+    pub fn get_id(&self) -> usize {
+        self.id
+    }
+    pub fn get_username(&self) -> &String{
+        &self.username
+    }
+    pub fn get_email(&self) -> &String{
+        &self.email
+    }
 }
