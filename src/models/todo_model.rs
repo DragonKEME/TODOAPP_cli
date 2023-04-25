@@ -56,23 +56,25 @@ impl Todo {
             Some(self.id.to_string()
                 + "," + self.content.as_str()
                 + "," + self.category.to_string().as_str()
-                + "," + self.finised_str(give_finished))
+                + "," + self.finished_str())
         }else{
             None
         }
     }
     pub fn to_format_string(&self,content_size: usize,  give_finished: bool) -> Option<String> {
         if give_finished || !self.finished{
-            Some(format!("{:<5}|{:<content_size$}|{:>18}|{:>8}",self.id.to_string(),self.content,self.category.to_string(),self.finised_str(give_finished)))
+            if give_finished{
+                Some(format!("{:<5}|{:<content_size$}|{:>18}|{:>8}",self.id.to_string(),self.content,self.category.to_string(),self.finished_str()))
+            }else{
+                Some(format!("{:<5}|{:<content_size$}|{:>18}",self.id.to_string(),self.content,self.category.to_string()))
+            }
         }else{
             None
         }
     }
 
-    fn finised_str(&self,give_finished: bool) -> &str{
-        if !give_finished{
-            ""
-        } else if self.finished{
+    fn finished_str(&self) -> &str{
+        if self.finished{
             "yes"
         }else{
             "no"

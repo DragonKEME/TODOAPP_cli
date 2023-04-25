@@ -31,6 +31,10 @@ pub fn set_todos(todos: Vec<Todo>) {
     *ensure_todos().lock().unwrap() = todos;
 }
 
+pub fn reset_todos(){
+    *ensure_todos().lock().unwrap() = Vec::new()
+}
+
 pub fn make_new_todo(content: String, category: &Category) -> Result<(),Box<dyn std::error::Error>> {
     let mut todos = get_todos();
     let todo_form = TodoForm {

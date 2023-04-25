@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
 use http::status::StatusCode;
+use crate::controller::user::get_user_todo;
 use crate::models::error_response;
 use crate::error::Error;
 use crate::routes;
@@ -20,11 +21,11 @@ struct LoginResponse {
 
 pub fn login(username: String, password: String) -> Result<(), Box<dyn std::error::Error>> {
     if username.is_empty() {
-        return Err(Error::PASSWORDLEN.into());
+        return Err(Error::EMPTYUSERNAME.into());
     }
 
     if password.len() < 8 {
-        return Err(Error::EMPTYUSERNAME.into());
+        return Err(Error::PASSWORDLEN.into());
     }
 
     let login_form = LoginForm {
@@ -42,6 +43,6 @@ pub fn login(username: String, password: String) -> Result<(), Box<dyn std::erro
 
     token::set_token(login_response.accessToken);
 
-
+    get_user_todo()?;
     Ok(())
 }

@@ -7,7 +7,6 @@ use crate::routes::Route;
 use serde::{Serialize, Deserialize};
 use crate::controller::todos::set_todos;
 use crate::models::todo_model::Todo;
-use crate::view::main_panel;
 use once_cell::sync::OnceCell;
 use std::sync::Mutex;
 
@@ -31,6 +30,10 @@ pub fn get_user() -> User {
 
 pub fn set_user(user: User) {
     *ensure_todos().lock().unwrap() = user;
+}
+
+pub fn reset_user() {
+    *ensure_todos().lock().unwrap() = User::new(0,"".to_string(),"".to_string());
 }
 
 pub fn get_user_todo() -> Result<(User,Vec<Todo>) , Box<dyn std::error::Error>> {
