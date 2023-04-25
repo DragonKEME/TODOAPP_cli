@@ -1,7 +1,6 @@
 use serde::{Serialize, Deserialize};
 use http::status::StatusCode;
 use crate::controller::login;
-use crate::models::user_model::UserTodo;
 use crate::models::error_response;
 use crate::error::Error;
 use crate::routes;

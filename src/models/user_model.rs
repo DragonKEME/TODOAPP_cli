@@ -7,8 +7,6 @@ pub struct User {
     email: String,
 }
 
-pub type UserTodo = (User,Vec<Todo>);
-
 impl User {
     pub fn new(id: usize, username: String, email: String) -> User{
         User { id, username, email }

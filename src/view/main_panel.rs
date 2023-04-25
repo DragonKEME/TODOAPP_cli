@@ -1,4 +1,3 @@
-use std::rc::Rc;
 use cursive::views::{Checkbox, Dialog, DummyView, EditView, LinearLayout, SelectView, TextView};
 use cursive::{Cursive, CursiveExt};
 use cursive::traits::{Nameable, Resizable};
