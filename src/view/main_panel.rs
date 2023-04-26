@@ -117,7 +117,7 @@ pub fn login_layer() -> Dialog{
         .child(EditView::new().with_name("password_login").fixed_width(40));
     Dialog::around(login_layer)
         .button("Connect",connect_todoapp)
-        .button("Register",register_view)
+        .button("Register",|s| {s.pop_layer();s.add_layer(register_view());})
         .button("Quit",|s| s.quit())
 }
 
@@ -134,8 +134,7 @@ pub fn connect_todoapp(s: &mut Cursive){
     }
 }
 
-pub fn register_view(s: &mut Cursive){
-    s.pop_layer();
+pub fn register_view() -> Dialog{
     let register_layer = LinearLayout::vertical()
         .child(TextView::new("Email:"))
         .child(EditView::new().with_name("email_register").fixed_width(40))
@@ -145,10 +144,10 @@ pub fn register_view(s: &mut Cursive){
         .child(DummyView)
         .child(TextView::new("Password:"))
         .child(EditView::new().with_name("password_register").fixed_width(40));
-    s.add_layer(Dialog::around(register_layer)
+    Dialog::around(register_layer)
         .button("Login", |s| {s.pop_layer();s.add_layer(login_layer())})
         .button("Register",register_todoapp)
-        .button("Quit",|s| s.quit()));
+        .button("Quit",|s| s.quit())
 }
 
 pub fn register_todoapp(s: &mut Cursive){
@@ -158,7 +157,7 @@ pub fn register_todoapp(s: &mut Cursive){
     let password = s.call_on_name("password_register", |view: &mut EditView| {
         view.get_content()
     }).unwrap();
-    let email = s.call_on_name("password_register", |view: &mut EditView| {
+    let email = s.call_on_name("email_register", |view: &mut EditView| {
         view.get_content()
     }).unwrap();
     match register(username.to_string(),email.to_string(),password.to_string()) {

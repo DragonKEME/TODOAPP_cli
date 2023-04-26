@@ -1,5 +1,3 @@
-use crate::models::todo_model::Todo;
-
 #[derive(Debug,Clone)]
 pub struct User {
     id: usize,
