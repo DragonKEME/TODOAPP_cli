@@ -24,11 +24,6 @@ impl Todo {
             id, content, finished, createdAt: created_at, category
         }
     }
-    pub fn new_void() -> Todo{
-        Todo{
-            id:0, content:"".to_string(), finished: false, createdAt: "".to_string(), category: Category::new()
-        }
-    }
 
     pub fn get_id(&self) -> usize {
         self.id

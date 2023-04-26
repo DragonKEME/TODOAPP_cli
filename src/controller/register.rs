@@ -41,7 +41,7 @@ pub fn register(username: String, email: String, password: String) -> Result<(),
     let res = Route::get_reqwest(routes::REGISTER)
         .body(serde_json::to_string(&register_form)?).send()?;
 
-    let register_response = match res.status() {
+    match res.status() {
         StatusCode::CREATED => res.json::<RegisterResponse>()?,
         _ => return Err(Error::ServerError(res.json::<error_response::ErrorResponse>()?).into()),
     };
