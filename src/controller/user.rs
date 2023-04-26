@@ -20,20 +20,20 @@ pub struct UserDto {
 
 static USER: OnceCell<Mutex<User>> = OnceCell::new();
 
-fn ensure_todos() -> &'static Mutex<User> {
+fn ensure_user() -> &'static Mutex<User> {
     USER.get_or_init(|| Mutex::new(User::new(0,"".to_string(),"".to_string())))
 }
 
 pub fn get_user() -> User {
-    ensure_todos().lock().unwrap().clone()
+    ensure_user().lock().unwrap().clone()
 }
 
 pub fn set_user(user: User) {
-    *ensure_todos().lock().unwrap() = user;
+    *ensure_user().lock().unwrap() = user;
 }
 
 pub fn reset_user() {
-    *ensure_todos().lock().unwrap() = User::new(0,"".to_string(),"".to_string());
+    *ensure_user().lock().unwrap() = User::new(0,"".to_string(),"".to_string());
 }
 
 pub fn get_user_todo() -> Result<(User,Vec<Todo>) , Box<dyn std::error::Error>> {

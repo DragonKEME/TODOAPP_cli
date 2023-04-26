@@ -1,12 +1,16 @@
-use cursive::views::{Checkbox, Dialog, DummyView, EditView, LinearLayout, SelectView, TextView};
+use std::error::Error;
+use cursive::views::{Button, Checkbox, Dialog, DummyView, EditView, LinearLayout, SelectView, TextView};
 use cursive::{Cursive, CursiveExt};
+use cursive::align::HAlign;
 use cursive::traits::{Nameable, Resizable};
 use crate::controller::login::login;
-use crate::controller::todos;
+use crate::controller::{category, todos};
 use crate::controller::user;
 use crate::models::todo_model::Todo;
 use cursive::view::{Scrollable};
+use cursive_aligned_view::Alignable;
 use crate::controller::register::register;
+use crate::models::category_model::Category;
 
 static DEFAULT_GIVE_ALL: bool = false;
 
@@ -19,7 +23,7 @@ pub fn todo_list() -> Result<(),Box<dyn std::error::Error>>{
         todo_app.add_layer(todos_layer(DEFAULT_GIVE_ALL));
     }
 
-    todo_app.add_global_callback('q', |s| s.quit());
+    todo_app.add_global_callback('q', quit_popup);
 
     todo_app.run();
     Ok(())
@@ -43,13 +47,17 @@ pub fn complete_todo(s: &mut Cursive, todo: &Todo){
     let todo_id = todo.get_id();
     s.add_layer(Dialog::text(format!("Do you want terminate this todo\n{} ",todo.get_content()))
         .button("Yes ", move |s| {
-            todos::finished_todo(todo_id).unwrap();
+            match todos::finished_todo(todo_id) {
+                Ok(()) => (),
+                Err(e) => error_popup(s,e)
+            }
             s.pop_layer();
-            refresh_todo_layer(s);
+            refresh_todo_list(s);
         })
         .button("No", |s| {
             s.pop_layer();
-        }));
+        })
+        .title("Finished ?"));
 }
 
 pub fn todos_layer(give_finished: bool) -> Dialog {
@@ -70,7 +78,7 @@ pub fn todos_layer(give_finished: bool) -> Dialog {
         }
     }
 
-    let mut checkbox = Checkbox::new().on_change(toogle_show_todo);
+    let mut checkbox = Checkbox::new().on_change(toggle_show_todo);
     if give_finished{
         checkbox.check();
     }else{
@@ -79,7 +87,7 @@ pub fn todos_layer(give_finished: bool) -> Dialog {
 
     let v_layout = LinearLayout::vertical()
         .child(column)
-        .child(todo_selector.scrollable())
+        .child(todo_selector.with_name("todo_list").scrollable())
         .child(DummyView)
         .child(LinearLayout::horizontal()
                     .child(checkbox.with_name("give_all"))
@@ -89,21 +97,29 @@ pub fn todos_layer(give_finished: bool) -> Dialog {
 
     Dialog::around(v_layout)
         .title("TODOAPP")
+        .button("Add todo", |s| {s.add_layer(add_todo_layer());})
         .button("User info",  user_view)
         .button("Disconnect", disconnect)
-        .button("Quit", |s| s.quit())
+        .button("Quit", quit_popup)
 
 }
 
-pub fn refresh_todo_layer(s: &mut Cursive){
+pub fn refresh_todo_list(s: &mut Cursive){
+    let todo_list = todos::get_todos();
     let state = s.call_on_name("give_all", |view: &mut Checkbox| {
         view.is_checked()
     }).unwrap();
-    s.pop_layer();
-    s.add_layer(todos_layer(state));
+
+    let mut todo_selector = s.find_name::<SelectView<Todo>>("todo_list").unwrap();
+    todo_selector.clear();
+    for todo in todo_list {
+        if let Some( todo_string) = todo.to_format_string(20,state) {
+            todo_selector.add_item(todo_string,todo)
+        }
+    }
 }
 
-pub fn toogle_show_todo(s: &mut Cursive, state: bool){
+pub fn toggle_show_todo(s: &mut Cursive, state: bool){
     s.pop_layer();
     s.add_layer(todos_layer(state));
 }
@@ -118,7 +134,8 @@ pub fn login_layer() -> Dialog{
     Dialog::around(login_layer)
         .button("Connect",connect_todoapp)
         .button("Register",|s| {s.pop_layer();s.add_layer(register_view());})
-        .button("Quit",|s| s.quit())
+        .button("Quit",quit_popup)
+        .title("TODOAPP: Login")
 }
 
 pub fn connect_todoapp(s: &mut Cursive){
@@ -130,7 +147,7 @@ pub fn connect_todoapp(s: &mut Cursive){
     }).unwrap();
     match login(username.to_string(),password.to_string()) {
         Ok(()) => {s.pop_layer();s.add_layer(todos_layer(DEFAULT_GIVE_ALL));}
-        Err(e) => s.add_layer(Dialog::info(e.to_string()))
+        Err(e) => error_popup(s,e)
     }
 }
 
@@ -145,9 +162,10 @@ pub fn register_view() -> Dialog{
         .child(TextView::new("Password:"))
         .child(EditView::new().with_name("password_register").fixed_width(40));
     Dialog::around(register_layer)
-        .button("Login", |s| {s.pop_layer();s.add_layer(login_layer())})
         .button("Register",register_todoapp)
-        .button("Quit",|s| s.quit())
+        .button("Back", |s| {s.pop_layer();s.add_layer(login_layer())})
+        .button("Quit",quit_popup)
+        .title("TODOAPP: Register")
 }
 
 pub fn register_todoapp(s: &mut Cursive){
@@ -164,12 +182,72 @@ pub fn register_todoapp(s: &mut Cursive){
         Ok(()) => {s.pop_layer();
             s.add_layer(login_layer());
             s.add_layer(Dialog::info("   You register successful   \nPlease now login you"));}
-        Err(e) => s.add_layer(Dialog::info(e.to_string()))
+        Err(e) => error_popup(s,e),
     }
 }
 
-pub fn add_todo(s: &mut Cursive){
+pub fn add_todo_layer() -> Dialog {
+    let add_todo_layer = LinearLayout::vertical()
+        .child(TextView::new("Content:"))
+        .child(EditView::new().with_name("new_todo_content").fixed_width(40))
+        .child(DummyView)
+        .child(TextView::new("Category:"))
+        .child(SelectView::<Option<Category>>::new()
+            .on_submit(category_selector)
+            .item("Chose a Category (entrer)", None)
+            .with_name("new_todo_category")
+            .fixed_height(1))
+        .child(DummyView)
+        //Buttons
+        .child(LinearLayout::horizontal()
+            .child(Button::new("Create", add_new_todo).disabled().with_name("create_button"))
+            .child(Button::new("Cancel", |s| { s.pop_layer(); }))
+            .align_bottom_right());
 
+    Dialog::around(add_todo_layer).title("Add Todo")
+}
+
+pub fn add_new_todo(s: &mut Cursive){
+    let select = s.find_name::<SelectView<Option<Category>>>("new_todo_category").unwrap();
+    let content = s.call_on_name("new_todo_content", |view: &mut EditView| {
+        view.get_content()
+    }).unwrap();
+    match select.selected_id() {
+        None => s.add_layer(Dialog::info("Please set a category")),
+        Some(category_id) => {
+            match todos::make_new_todo(content.to_string(), select.get_item(category_id).unwrap().1.as_ref().unwrap()) {
+                Ok(()) => { s.pop_layer(); refresh_todo_list(s);},
+                Err(e) => error_popup(s,e),
+            }
+        }
+    }
+}
+
+pub fn category_selector(s: &mut Cursive, selected: &Option<Category>){
+    let categories  = category::get_categories();
+    let mut categories_selector = SelectView::<Category>::new()
+        .on_submit(category_selected)
+        .h_align(HAlign::Center);
+
+    let cat_selected_id = match selected{
+        Some(selected_category) => selected_category.get_id() - 1 ,
+        None => 0,
+    };
+    for category in categories {
+        categories_selector.add_item(category.to_string(), category)
+    }
+    s.add_layer(Dialog::around(categories_selector.selected(cat_selected_id).scrollable()));
+}
+
+pub fn category_selected(s: &mut Cursive, selected: &Category){
+    s.call_on_name("new_todo_category", |view: &mut SelectView<Option<Category>>|{
+        view.clear();
+        view.add_item(selected.to_string(),Some(selected.clone()))
+    }).unwrap();
+    s.call_on_name("create_button", |button: &mut Button|{
+        button.set_enabled(true)
+    }).unwrap();
+    s.pop_layer();
 }
 
 pub fn disconnect(s: &mut Cursive){
@@ -177,4 +255,15 @@ pub fn disconnect(s: &mut Cursive){
     todos::reset_todos();
     s.pop_layer();
     s.add_layer(login_layer())
+}
+
+pub fn quit_popup(s: &mut Cursive) {
+    s.add_layer(Dialog::text("\n    Are you sure you want to leave?   \n")
+        .button("No", |s| {s.pop_layer();})
+        .button("Yes", |s| s.quit())
+        .title("Quit ?"));
+}
+
+pub fn error_popup(s: &mut Cursive, error: Box<dyn Error>){
+    s.add_layer(Dialog::info(error.to_string()).title("ERROR"))
 }
