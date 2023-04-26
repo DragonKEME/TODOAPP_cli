@@ -181,7 +181,8 @@ pub fn register_todoapp(s: &mut Cursive){
     match register(username.to_string(),email.to_string(),password.to_string()) {
         Ok(()) => {s.pop_layer();
             s.add_layer(login_layer());
-            s.add_layer(Dialog::info("   You register successful   \nPlease now login you"));}
+            s.add_layer(Dialog::info("   You register successful   \nPlease now login you")
+                                .title("Welcome"));}
         Err(e) => error_popup(s,e),
     }
 }
