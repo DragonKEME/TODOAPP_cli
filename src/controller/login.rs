@@ -3,8 +3,7 @@ use http::status::StatusCode;
 use crate::controller::user::get_user_todo;
 use crate::models::error_response;
 use crate::error::Error;
-use crate::routes;
-use crate::routes::Route;
+use crate::{routes, routes::Route};
 use crate::security::token;
 
 #[derive(Serialize, Debug)]

@@ -1,12 +1,14 @@
 use http::status::StatusCode;
+use crate::{routes, routes::Route};
+use crate::error::Error;
+
 use crate::models::user_model::User;
 use crate::models::error_response;
-use crate::error::Error;
-use crate::routes;
-use crate::routes::Route;
+use crate::models::todo_model::Todo;
+
 use serde::{Serialize, Deserialize};
 use crate::controller::todos::set_todos;
-use crate::models::todo_model::Todo;
+
 use once_cell::sync::OnceCell;
 use std::sync::Mutex;
 

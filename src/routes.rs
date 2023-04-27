@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use http::method::Method;
-use crate::security::token::get_token;
+use crate::security::token;
 use crate::config;
 use crate::error::Error;
 
@@ -18,11 +18,12 @@ impl<'a> Route<'a> {
     pub fn get_reqwest(self) -> reqwest::blocking::RequestBuilder{
         let mut url: String = config::TODOAPP_API_URL.to_string();
         url.push_str(self.path);
+        // Blocking client to avoid async problem (we don't do much reqwest that justify async)
         let rb = reqwest::blocking::Client::new().request(self.method,url)
             .header("Content-Type", "application/json");
 
         if self.require_token {
-            return rb.header("Authorization", get_token())
+            return rb.header("Authorization", token::get_token())
         }
         rb
     }
@@ -46,7 +47,7 @@ impl<'a> Route<'a> {
             .header("Content-Type", "application/json");
 
         if self.require_token {
-            return Ok(rb.header("Authorization", get_token()))
+            return Ok(rb.header("Authorization", token::get_token()))
         }
         Ok(rb)
     }

@@ -5,8 +5,7 @@ use crate::error::Error;
 use crate::models::category_model::Category;
 use crate::models::error_response;
 use crate::models::todo_model::{Todo, TodoDto};
-use crate::routes;
-use crate::routes::Route;
+use crate::{routes, routes::Route};
 use once_cell::sync::OnceCell;
 use std::sync::Mutex;
 
