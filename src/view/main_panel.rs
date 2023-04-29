@@ -14,7 +14,7 @@ use crate::models::category_model::Category;
 
 static DEFAULT_GIVE_ALL: bool = false;
 
-pub fn todo_list() -> Result<(),Box<dyn Error>>{
+pub fn todo_list(){
     let mut todo_app = Cursive::default();
 
     if user::get_user().get_id() == 0{
@@ -26,7 +26,6 @@ pub fn todo_list() -> Result<(),Box<dyn Error>>{
     todo_app.add_global_callback('q', quit_popup);
 
     todo_app.run();
-    Ok(())
 }
 
 pub fn user_view(s: &mut Cursive){

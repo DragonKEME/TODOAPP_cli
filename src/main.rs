@@ -9,8 +9,6 @@ mod view;
 
 use crate::view::main_panel;
 
-fn main() -> Result<(), Box<dyn std::error::Error>>{
-
-    main_panel::todo_list()?;
-    Ok(())
+fn main(){
+    main_panel::todo_list();
 }
