@@ -127,10 +127,11 @@ pub fn toggle_show_todo(s: &mut Cursive, state: bool){
 pub fn login_layer() -> Dialog{
     let login_layer = LinearLayout::vertical()
         .child(TextView::new("Username:"))
-        .child(EditView::new().with_name("username_login").fixed_width(40))
+        .child(EditView::new().on_submit(|s , str| connect_todoapp(s)).with_name("username_login").fixed_width(40))
         .child(DummyView)
         .child(TextView::new("Password:"))
-        .child(EditView::new().with_name("password_login").fixed_width(40));
+        .child(EditView::new().on_submit(|s , str| connect_todoapp(s))
+            .secret().with_name("password_login").fixed_width(40));
     Dialog::around(login_layer)
         .button("Connect",connect_todoapp)
         .button("Register",|s| {s.pop_layer();s.add_layer(register_view());})
@@ -154,13 +155,16 @@ pub fn connect_todoapp(s: &mut Cursive){
 pub fn register_view() -> Dialog{
     let register_layer = LinearLayout::vertical()
         .child(TextView::new("Email:"))
-        .child(EditView::new().with_name("email_register").fixed_width(40))
+        .child(EditView::new().on_submit(|s , str| register_todoapp(s))
+            .with_name("email_register").fixed_width(40))
         .child(DummyView)
         .child(TextView::new("Username:"))
-        .child(EditView::new().with_name("username_register").fixed_width(40))
+        .child(EditView::new().on_submit(|s , str| register_todoapp(s))
+            .with_name("username_register").fixed_width(40))
         .child(DummyView)
         .child(TextView::new("Password:"))
-        .child(EditView::new().with_name("password_register").fixed_width(40));
+        .child(EditView::new().secret().on_submit(|s , str| register_todoapp(s))
+            .with_name("password_register").fixed_width(40));
     Dialog::around(register_layer)
         .button("Register",register_todoapp)
         .button("Back", |s| {s.pop_layer();s.add_layer(login_layer())})

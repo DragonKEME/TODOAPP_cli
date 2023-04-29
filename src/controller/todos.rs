@@ -36,6 +36,9 @@ pub fn reset_todos(){
 
 pub fn make_new_todo(content: String, category: &Category) -> Result<(),Box<dyn std::error::Error>> {
     let mut todos = get_todos();
+    if content.is_empty() {
+        return Err(Error::EmptyTodo.into());
+    }
     let todo_form = TodoForm {
         content,
         idCategory: category.get_id(),
@@ -44,7 +47,11 @@ pub fn make_new_todo(content: String, category: &Category) -> Result<(),Box<dyn 
     let res = Route::get_reqwest(routes::ADD_TODO)
         .body(serde_json::to_string(&todo_form)?).send()?;
 
-    todos.push(res.json::<Todo>()?);
+    match res.status() {
+        StatusCode::CREATED => todos.push(res.json::<Todo>()?),
+        _ => return Err(Error::ServerError(res.json::<error_response::ErrorResponse>()?).into()),
+    }
+
     set_todos(todos);
     Ok(())
 }
