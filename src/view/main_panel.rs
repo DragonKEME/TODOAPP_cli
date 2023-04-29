@@ -14,7 +14,7 @@ use crate::models::category_model::Category;
 
 static DEFAULT_GIVE_ALL: bool = false;
 
-pub fn todo_list() -> Result<(),Box<dyn std::error::Error>>{
+pub fn todo_list() -> Result<(),Box<dyn Error>>{
     let mut todo_app = Cursive::default();
 
     if user::get_user().get_id() == 0{
@@ -124,7 +124,9 @@ pub fn toggle_show_todo(s: &mut Cursive, state: bool){
     s.add_layer(todos_layer(state));
 }
 
+
 pub fn login_layer() -> Dialog{
+    #[allow(unused_variables)]
     let login_layer = LinearLayout::vertical()
         .child(TextView::new("Username:"))
         .child(EditView::new().on_submit(|s , str| connect_todoapp(s)).with_name("username_login").fixed_width(40))
@@ -153,6 +155,7 @@ pub fn connect_todoapp(s: &mut Cursive){
 }
 
 pub fn register_view() -> Dialog{
+    #[allow(unused_variables)]
     let register_layer = LinearLayout::vertical()
         .child(TextView::new("Email:"))
         .child(EditView::new().on_submit(|s , str| register_todoapp(s))
@@ -199,7 +202,7 @@ pub fn add_todo_layer() -> Dialog {
         .child(TextView::new("Category:"))
         .child(SelectView::<Option<Category>>::new()
             .on_submit(category_selector)
-            .item("Chose a Category (entrer)", None)
+            .item("Chose a Category (enter)", None)
             .with_name("new_todo_category")
             .fixed_height(1))
         .child(DummyView)
@@ -229,7 +232,10 @@ pub fn add_new_todo(s: &mut Cursive){
 }
 
 pub fn category_selector(s: &mut Cursive, selected: &Option<Category>){
-    let categories  = category::get_categories();
+    let categories  = match category::get_categories(){
+        Ok(cat) => cat,
+        Err(e) => return error_popup(s,e),
+    };
     let mut categories_selector = SelectView::<Category>::new()
         .on_submit(category_selected)
         .h_align(HAlign::Center);

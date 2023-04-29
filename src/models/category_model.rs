@@ -7,6 +7,7 @@ pub struct Category {
 }
 
 impl Category {
+    #![allow(dead_code)]
     pub fn new() -> Category{
         Category{
             id:0, title: "".to_string(),

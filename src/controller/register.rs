@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::Serialize;
 use http::status::StatusCode;
 use crate::controller::login;
 use crate::models::error_response;
@@ -12,11 +12,12 @@ struct RegisterForm {
     password: String,
 }
 
+/*
 #[derive(Deserialize, Debug)]
 struct RegisterResponse {
     success: bool,
     message: String,
-}
+}*/
 
 pub fn register(username: String, email: String, password: String) -> Result<(), Box<dyn std::error::Error>> {
 
@@ -38,10 +39,10 @@ pub fn register(username: String, email: String, password: String) -> Result<(),
     };
 
     let res = Route::get_reqwest(routes::REGISTER)
-        .body(serde_json::to_string(&register_form)?).send()?;
+        .body(serde_json::to_string_pretty(&register_form)?).send()?;
 
     match res.status() {
-        StatusCode::CREATED => res.json::<RegisterResponse>()?,
+        StatusCode::CREATED => (),
         _ => return Err(Error::ServerError(res.json::<error_response::ErrorResponse>()?).into()),
     };
 

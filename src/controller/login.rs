@@ -13,9 +13,11 @@ struct LoginForm {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 struct LoginResponse {
-    expiresIn: String,
-    accessToken: String,
+    expires_in: String,
+    access_token: String,
 }
 
 pub fn login(username: String, password: String) -> Result<(), Box<dyn std::error::Error>> {
@@ -33,14 +35,14 @@ pub fn login(username: String, password: String) -> Result<(), Box<dyn std::erro
     };
 
     let res = Route::get_reqwest(routes::LOGIN)
-        .body(serde_json::to_string(&login_form)?).send()?;
+        .body(serde_json::to_string_pretty(&login_form)?).send()?;
 
     let login_response = match res.status() {
         StatusCode::CREATED => res.json::<LoginResponse>()?,
         _ => return Err(Error::ServerError(res.json::<error_response::ErrorResponse>()?).into()),
     };
 
-    token::set_token(login_response.accessToken);
+    token::set_token(login_response.access_token);
 
     get_user_todo()?;
     Ok(())

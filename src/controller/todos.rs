@@ -11,9 +11,10 @@ use std::sync::Mutex;
 
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 struct TodoForm {
     content: String,
-    idCategory: usize,
+    id_category: usize,
 }
 
 static TODOS: OnceCell<Mutex<Vec<Todo>>> = OnceCell::new();
@@ -41,11 +42,11 @@ pub fn make_new_todo(content: String, category: &Category) -> Result<(),Box<dyn 
     }
     let todo_form = TodoForm {
         content,
-        idCategory: category.get_id(),
+        id_category: category.get_id(),
     };
 
     let res = Route::get_reqwest(routes::ADD_TODO)
-        .body(serde_json::to_string(&todo_form)?).send()?;
+        .body(serde_json::to_string_pretty(&todo_form)?).send()?;
 
     match res.status() {
         StatusCode::CREATED => todos.push(res.json::<Todo>()?),

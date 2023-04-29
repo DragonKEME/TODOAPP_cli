@@ -2,26 +2,29 @@ use serde::{Serialize, Deserialize};
 use crate::models::category_model::Category;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Todo {
     id: usize,
     content: String,
     finished: bool,
-    createdAt: String,
+    created_at: String,
     category: Category,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct TodoDto {
     id: usize,
     content: String,
     finished: bool,
-    createdAt: String,
+    created_at: String,
 }
 
 impl Todo {
+    #![allow(dead_code)]
     pub fn new(id: usize, content: String, finished: bool, created_at: String, category: Category ) -> Todo{
         Todo {
-            id, content, finished, createdAt: created_at, category
+            id, content, finished, created_at, category
         }
     }
 
@@ -36,7 +39,7 @@ impl Todo {
     }
 
     pub fn update_from_dto(&mut self, todo_dto: TodoDto){
-        self.createdAt = todo_dto.createdAt;
+        self.created_at = todo_dto.created_at;
         self.finished = todo_dto.finished;
         self.content = todo_dto.content;
     }

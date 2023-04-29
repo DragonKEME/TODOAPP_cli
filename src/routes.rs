@@ -11,6 +11,7 @@ pub struct  Route<'a> {
 }
 
 impl<'a> Route<'a> {
+    #[allow(dead_code)]
     fn new(method: Method,path: &'a str, require_token: bool) -> Route<'a>{
         Route { method, path, require_token}
     }
