@@ -13,5 +13,6 @@ cargo run --release
 
 ## Main libraries
 
-[reqwest](https://github.com/seanmonstar/reqwest): API interface 
+[reqwest](https://github.com/seanmonstar/reqwest): API interface
+
 [Cursive](https://github.com/gyscos/cursive): TUI interface
