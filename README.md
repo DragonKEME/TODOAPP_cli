@@ -1,5 +1,5 @@
 # TODOAPP_cli
-Sample todoapp for JSMB's todoapp API (public repo coming soon)
+Sample todoapp for [JSMB's todoapp API](https://github.com/chadow4/TodoAppBack)
 
 ## Build
 ```
