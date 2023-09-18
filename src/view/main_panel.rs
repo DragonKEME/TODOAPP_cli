@@ -39,11 +39,23 @@ pub fn user_view(s: &mut Cursive){
 }
 
 pub fn complete_todo(s: &mut Cursive, todo: &Todo){
-    if todo.is_terminated(){
-        s.add_layer(Dialog::info("Todo already terminated"));
+    let todo_id = todo.get_id();
+    if todo.is_terminated() {
+        s.add_layer(Dialog::text(format!("This Todo ({}) is finished\nUnset it finished?", todo.get_content()))
+            .button("Yes ", move |s| {
+                match todos::finished_todo(todo_id) {
+                    Ok(()) => (),
+                    Err(e) => error_popup(s, e)
+                }
+                s.pop_layer();
+                refresh_todo_list(s);
+            })
+            .button("No", |s| {
+                s.pop_layer();
+            })
+            .title("UnFinished ?"));
         return;
     }
-    let todo_id = todo.get_id();
     s.add_layer(Dialog::text(format!("Do you want terminate this todo\n{} ",todo.get_content()))
         .button("Yes ", move |s| {
             match todos::finished_todo(todo_id) {
@@ -156,13 +168,13 @@ pub fn connect_todoapp(s: &mut Cursive){
 pub fn register_view() -> Dialog{
     #[allow(unused_variables)]
     let register_layer = LinearLayout::vertical()
-        .child(TextView::new("Email:"))
-        .child(EditView::new().on_submit(|s , str| register_todoapp(s))
-            .with_name("email_register").fixed_width(40))
-        .child(DummyView)
         .child(TextView::new("Username:"))
         .child(EditView::new().on_submit(|s , str| register_todoapp(s))
             .with_name("username_register").fixed_width(40))
+        .child(DummyView)
+        .child(TextView::new("Email:"))
+        .child(EditView::new().on_submit(|s , str| register_todoapp(s))
+            .with_name("email_register").fixed_width(40))
         .child(DummyView)
         .child(TextView::new("Password:"))
         .child(EditView::new().secret().on_submit(|s , str| register_todoapp(s))
