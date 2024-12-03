@@ -32,6 +32,9 @@ pub fn get_server_categories() -> Result<Vec<Category>,Box<dyn std::error::Error
         StatusCode::OK => res.json::<Vec<Category>>()?,
         _ => return Err(Error::ServerError(res.json::<error_response::ErrorResponse>()?).into()),
     };
+    if categories.is_empty(){
+        return Err(Error::EmptyCategoru.into());
+    }
     set_categories(categories.clone());
     Ok(categories)
 }

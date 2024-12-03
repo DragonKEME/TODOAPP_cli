@@ -1,2 +1,2 @@
-pub const TODOAPP_API_URL: &str = "https://jsmb.fr:33000";
+pub const TODOAPP_API_URL: &str = "https://api-todoapp.jsmb.fr";
 

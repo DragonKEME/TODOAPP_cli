@@ -1,4 +1,7 @@
+use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
+use crate::date_format;
+use crate::date_format::showed_date_time;
 use crate::models::category_model::Category;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -7,6 +10,8 @@ pub struct Todo {
     id: usize,
     content: String,
     finished: bool,
+    #[serde(with = "date_format")]
+    desired_end_date: Option<DateTime<Utc>>,
     created_at: String,
     category: Category,
 }
@@ -17,14 +22,16 @@ pub struct TodoDto {
     id: usize,
     content: String,
     finished: bool,
+    #[serde(with = "date_format")]
+    desired_end_date: Option<DateTime<Utc>>,
     created_at: String,
 }
 
 impl Todo {
     #![allow(dead_code)]
-    pub fn new(id: usize, content: String, finished: bool, created_at: String, category: Category ) -> Todo{
+    pub fn new(id: usize, content: String, finished: bool, created_at: String, category: Category, desired_end_date: Option<DateTime<Utc>> ) -> Todo{
         Todo {
-            id, content, finished, created_at, category
+            id, content, finished, created_at, category, desired_end_date
         }
     }
 
@@ -61,9 +68,24 @@ impl Todo {
     pub fn to_format_string(&self,content_size: usize,  give_finished: bool) -> Option<String> {
         if give_finished || !self.finished{
             if give_finished{
-                Some(format!("{:<5}|{:<content_size$}|{:>18}|{:>8}",self.id.to_string(),self.content,self.category.to_string(),self.finished_str()))
+                Some(
+                    format!("{:<5}|{:<content_size$}|{:^14}|{:>18}|{:>8}",
+                            self.id.to_string(),
+                            self.content,
+                            showed_date_time(self.desired_end_date),
+                            self.category.to_string(),
+                            self.finished_str()
+                    )
+                )
             }else{
-                Some(format!("{:<5}|{:<content_size$}|{:>18}",self.id.to_string(),self.content,self.category.to_string()))
+                Some(
+                    format!("{:<5}|{:<content_size$}|{:^14}|{:>18}",
+                            self.id.to_string(),
+                            self.content,
+                            showed_date_time(self.desired_end_date),
+                            self.category.to_string(),
+                    )
+                )
             }
         }else{
             None

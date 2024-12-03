@@ -8,6 +8,8 @@ use crate::models::todo_model::{Todo, TodoDto};
 use crate::{routes, routes::Route};
 use once_cell::sync::OnceCell;
 use std::sync::Mutex;
+use chrono::{DateTime, Utc};
+use crate::date_format;
 
 
 #[derive(Serialize, Debug)]
@@ -15,6 +17,8 @@ use std::sync::Mutex;
 struct TodoForm {
     content: String,
     id_category: usize,
+    #[serde(with = "date_format")]
+    desired_end_date: Option<DateTime<Utc>>,
 }
 
 static TODOS: OnceCell<Mutex<Vec<Todo>>> = OnceCell::new();
@@ -35,7 +39,7 @@ pub fn reset_todos(){
     *ensure_todos().lock().unwrap() = Vec::new()
 }
 
-pub fn make_new_todo(content: String, category: &Category) -> Result<(),Box<dyn std::error::Error>> {
+pub fn make_new_todo(content: String, category: &Category, desired_end_date: Option<DateTime<Utc>>) -> Result<(),Box<dyn std::error::Error>> {
     let mut todos = get_todos();
     if content.is_empty() {
         return Err(Error::EmptyTodo.into());
@@ -43,6 +47,7 @@ pub fn make_new_todo(content: String, category: &Category) -> Result<(),Box<dyn 
     let todo_form = TodoForm {
         content,
         id_category: category.get_id(),
+        desired_end_date
     };
 
     let res = Route::get_reqwest(routes::ADD_TODO)

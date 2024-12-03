@@ -6,6 +6,7 @@ mod config;
 mod routes;
 mod security;
 mod view;
+mod date_format;
 
 use crate::view::main_panel;
 

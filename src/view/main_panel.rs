@@ -10,6 +10,7 @@ use crate::models::todo_model::Todo;
 use cursive::view::{Scrollable};
 use cursive_aligned_view::Alignable;
 use crate::controller::register::register;
+use crate::date_format::input_date;
 use crate::models::category_model::Category;
 
 static DEFAULT_GIVE_ALL: bool = false;
@@ -73,7 +74,7 @@ pub fn complete_todo(s: &mut Cursive, todo: &Todo){
 
 pub fn todos_layer(give_finished: bool) -> Dialog {
     let todo_list = todos::get_todos();
-    let mut description = format!("{:^5}|{:^20}|{:^18}","ID","content","category");
+    let mut description = format!("{:^5}|{:^20}|{:^14}|{:^18}","ID","content","Deadline","category");
     if give_finished{
         description += "|finished";
     }
@@ -217,9 +218,22 @@ pub fn add_todo_layer() -> Dialog {
             .with_name("new_todo_category")
             .fixed_height(1))
         .child(DummyView)
+        .child(TextView::new("Deadline date (optional)"))
+        .child(LinearLayout::horizontal()
+            .child(TextView::new("Year "))
+            .child(EditView::new().with_name("box_year").fixed_width(6))
+            .child(DummyView.fixed_width(5))
+            .child(TextView::new("month "))
+            .child(EditView::new().with_name("box_month").fixed_width(4))
+            .child(DummyView.fixed_width(5))
+            .child(TextView::new("day "))
+            .child(EditView::new().with_name("box_day").fixed_width(4))
+        )
+        .child(DummyView)
         //Buttons
         .child(LinearLayout::horizontal()
             .child(Button::new("Create", add_new_todo).disabled().with_name("create_button"))
+            .child(DummyView.fixed_width(1))
             .child(Button::new("Cancel", |s| { s.pop_layer(); }))
             .align_bottom_right());
 
@@ -231,10 +245,27 @@ pub fn add_new_todo(s: &mut Cursive){
     let content = s.call_on_name("new_todo_content", |view: &mut EditView| {
         view.get_content()
     }).unwrap();
+
+    let year = s.call_on_name("box_year", |view: &mut EditView| {
+        view.get_content()
+    }).unwrap();
+
+    let month = s.call_on_name("box_month", |view: &mut EditView| {
+        view.get_content()
+    }).unwrap();
+
+    let day = s.call_on_name("box_day", |view: &mut EditView| {
+        view.get_content()
+    }).unwrap();
+
+    let deadline = match input_date(year.to_string(),month.to_string(),day.to_string()) {
+        Ok(d) => d,
+        Err(e) => { error_popup(s,e.into()); return;}
+    };
     match select.selected_id() {
         None => s.add_layer(Dialog::info("Please set a category")),
         Some(category_id) => {
-            match todos::make_new_todo(content.to_string(), select.get_item(category_id).unwrap().1.as_ref().unwrap()) {
+            match todos::make_new_todo(content.to_string(), select.get_item(category_id).unwrap().1.as_ref().unwrap(), deadline) {
                 Ok(()) => { s.pop_layer(); refresh_todo_list(s);},
                 Err(e) => error_popup(s,e),
             }
